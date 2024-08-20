@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Payment Successful!</h1>
+    <p>Thank you for your payment. We are processing your order...</p>
+
+    <script>
+        // Function to get query parameter value by name
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Assuming userId is passed as a query parameter in the URL
+        const sessionToken = getQueryParam('sessionToken');
+
+        if (sessionToken) {
+            // Headers for the request
+            const headers = {
+                "Content-Type": "application/json",
+                "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
+                "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
+                "X-Parse-Session-Token": sessionToken
+            };
+
+            // Request body
+            const data = {};
+
+            // Make the request to checkOrderStatusForUser
+            fetch("https://horoscope.b4a.io/functions/checkOrderStatusForUser", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response Data:", data);
+
+                if (data.success) {
+                    document.body.innerHTML += "<p>Your order has been successfully processed.</p>";
+                } else {
+                    document.body.innerHTML += "<p>There was an issue processing your order. Please contact support.</p>";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.body.innerHTML += "<p>There was an error processing your request. Please try again later.</p>";
+            });
+        } else {
+            document.body.innerHTML += "<p>Missing user information. Please contact support.</p>";
+        }
+    </script>
+</body>
+</html>

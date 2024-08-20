@@ -55,18 +55,10 @@
                 "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
                 "X-Parse-Session-Token": sessionToken
             };
-
-            // Log the headers for debugging
-            console.log("Request Headers:", headers);
-
             const url = "https://horoscope.b4a.io/functions/createPayment";
             const data = {
                 duration: duration
             };
-
-            console.log("Request URL:", url);
-            console.log("Request Data:", data);
-
             fetch(url, {
                 method: "POST",
                 headers: headers,
@@ -74,8 +66,6 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log("Response Data:", data);
-
                 // Check if the response is successful and contains the PaymentURL
                 if (data.result && data.result.Success && data.result.PaymentURL) {
                     // Redirect to the PaymentURL
