@@ -48,7 +48,7 @@
             .then(data => {
                 console.log("Response Data:", data);
 
-                if (data.success) {
+                if (data.result.success) {
                     document.body.innerHTML += "<p>Your order has been successfully processed.</p>";
                 } else {
                     document.body.innerHTML += "<p>There was an issue processing your order. Please contact support.</p>";
