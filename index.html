@@ -48,23 +48,33 @@
                 return;
             }
 
+            // Define headers in a separate object
+            const headers = {
+                "Content-Type": "application/json",
+                "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
+                "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
+                "X-Parse-Session-Token": sessionToken
+            };
+
+            // Log the headers for debugging
+            console.log("Request Headers:", headers);
+
             const url = "https://horoscope.b4a.io/functions/createPayment";
             const data = {
                 duration: duration
             };
 
+            console.log("Request URL:", url);
+            console.log("Request Data:", data);
+
             fetch(url, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
-                    "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
-                    "X-Parse-Session-Token": sessionToken
-                },
+                headers: headers,
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
+                console.log("Response Data:", data);
                 if (data.success) {
                     // Redirect to payment page or handle success
                     window.location.href = data.paymentUrl; // Assume paymentUrl is returned in the response
