@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Page</title>
+    <style>
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Выберите подписку</h1>
+        <button class="button" onclick="createPayment(1)">1 месяц - 99₽</button>
+        <button class="button" onclick="createPayment(3)">3 месяца - 290₽</button>
+        <button class="button" onclick="createPayment(6)">6 месяцев - 550₽</button>
+        <button class="button" onclick="createPayment(12)">12 месяцев - 999₽</button>
+    </div>
+
+    <script>
+        function createPayment(duration) {
+            const url = "https://horoscope.b4a.io/functions/createPayment";
+            const data = {
+                duration: duration
+            };
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to payment page or handle success
+                    window.location.href = data.paymentUrl; // Assume paymentUrl is returned in the response
+                } else {
+                    alert("Payment initiation failed: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while initiating the payment.");
+            });
+        }
+    </script>
+</body>
+</html>
