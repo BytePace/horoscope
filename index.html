@@ -75,11 +75,13 @@
             .then(response => response.json())
             .then(data => {
                 console.log("Response Data:", data);
-                if (data.success) {
-                    // Redirect to payment page or handle success
-                    window.location.href = data.paymentUrl; // Assume paymentUrl is returned in the response
+
+                // Check if the response is successful and contains the PaymentURL
+                if (data.result && data.result.Success && data.result.PaymentURL) {
+                    // Redirect to the PaymentURL
+                    window.location.href = data.result.PaymentURL;
                 } else {
-                    alert("Payment initiation failed: " + data.error);
+                    alert("Payment initiation failed: " + (data.result ? data.result.ErrorCode : "Unknown error"));
                 }
             })
             .catch(error => {
