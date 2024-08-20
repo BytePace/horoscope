@@ -35,7 +35,19 @@
     </div>
 
     <script>
+        // Function to get query parameter value by name
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
         function createPayment(duration) {
+            const sessionToken = getQueryParam('sessionToken');
+            if (!sessionToken) {
+                alert("Session token is missing");
+                return;
+            }
+
             const url = "https://horoscope.b4a.io/functions/createPayment";
             const data = {
                 duration: duration
@@ -44,7 +56,10 @@
             fetch(url, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
+                    "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
+                    "X-Parse-Session-Token": sessionToken
                 },
                 body: JSON.stringify(data)
             })
