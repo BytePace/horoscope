@@ -3,18 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success</title>
+    <title>Subscription Page</title>
     <style>
         body {
+            background-image: url('stars-bg.pdf');
+            background-size: cover; /* This ensures the background covers the whole page */
+            background-position: center; /* Centers the background image */
+            background-repeat: no-repeat; /* Prevents the background from repeating */
+            margin: 0;
             font-family: Arial, sans-serif;
+        }
+
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .container {
             text-align: center;
             margin-top: 50px;
+            background-color: rgba(255, 255, 255, 0.8); /* Optional: Adds a white background with transparency */
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        h1 {
+            color: #333; /* Text color for better readability on the background */
         }
     </style>
 </head>
 <body>
-    <h1>Payment Successful!</h1>
-    <p>Thank you for your payment. We are processing your order...</p>
+    <div class="container">
+        <h1>Выберите подписку</h1>
+        <button class="button" onclick="createPayment(1)">1 месяц - 99₽</button>
+        <button class="button" onclick="createPayment(3)">3 месяца - 290₽</button>
+        <button class="button" onclick="createPayment(6)">6 месяцев - 550₽</button>
+        <button class="button" onclick="createPayment(12)">12 месяцев - 999₽</button>
+    </div>
 
     <script>
         // Function to get query parameter value by name
@@ -23,43 +58,43 @@
             return urlParams.get(name);
         }
 
-        // Assuming userId is passed as a query parameter in the URL
-        const sessionToken = getQueryParam('sessionToken');
+        function createPayment(duration) {
+            const sessionToken = getQueryParam('sessionToken');
+            if (!sessionToken) {
+                alert("Session token is missing");
+                return;
+            }
 
-        if (sessionToken) {
-            // Headers for the request
+            // Define headers in a separate object
             const headers = {
                 "Content-Type": "application/json",
                 "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
                 "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
                 "X-Parse-Session-Token": sessionToken
             };
-
-            // Request body
-            const data = {};
-
-            // Make the request to checkOrderStatusForUser
-            fetch("https://horoscope.b4a.io/functions/checkOrderStatusForUser", {
+            const url = "https://horoscope.b4a.io/functions/createPayment";
+            const data = {
+                duration: duration
+            };
+            fetch(url, {
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
-                console.log("Response Data:", data);
-
-                if (data.result.success) {
-                    document.body.innerHTML += "<p>Your order has been successfully processed.</p>";
+                // Check if the response is successful and contains the PaymentURL
+                if (data.result && data.result.Success && data.result.PaymentURL) {
+                    // Redirect to the PaymentURL
+                    window.location.href = data.result.PaymentURL;
                 } else {
-                    document.body.innerHTML += "<p>There was an issue processing your order. Please contact support.</p>";
+                    alert("Payment initiation failed: " + (data.result ? data.result.ErrorCode : "Unknown error"));
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                document.body.innerHTML += "<p>There was an error processing your request. Please try again later.</p>";
+                alert("An error occurred while initiating the payment.");
             });
-        } else {
-            document.body.innerHTML += "<p>Missing user information. Please contact support.</p>";
         }
     </script>
 </body>
