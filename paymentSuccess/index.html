@@ -1,17 +1,25 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Choose the best subscription plan for your horoscope app.">
+    <meta property="og:title" content="Subscription Page">
+    <meta property="og:description" content="Choose your subscription and enjoy personalized horoscopes.">
+    <meta property="og:image" content="path-to-your-image.jpg">
+    <meta property="og:url" content="https://horoscope.b4a.io">
     <title>Subscription Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-image: url('stars-bg.pdf');
+            background-color: #000; /* Fallback color */
+            background-image: url('stars-bg.jpg');
             background-size: cover; /* This ensures the background covers the whole page */
             background-position: center; /* Centers the background image */
             background-repeat: no-repeat; /* Prevents the background from repeating */
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
 
         .button {
@@ -40,42 +48,65 @@
         h1 {
             color: #333; /* Text color for better readability on the background */
         }
+
+        @media (max-width: 600px) {
+            .container {
+                margin-top: 20px;
+                padding: 15px;
+                width: 90%; /* Adjust container width for smaller screens */
+            }
+
+            .button {
+                width: 100%; /* Make buttons span the full width on small screens */
+                margin-bottom: 15px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Выберите подписку</h1>
-        <button class="button" onclick="createPayment(1)">1 месяц - 99₽</button>
-        <button class="button" onclick="createPayment(3)">3 месяца - 290₽</button>
-        <button class="button" onclick="createPayment(6)">6 месяцев - 550₽</button>
-        <button class="button" onclick="createPayment(12)">12 месяцев - 999₽</button>
+        <button class="button" aria-label="Subscribe for 1 month at 99 rubles" onclick="createPayment(1)">1 месяц - 99₽</button>
+        <button class="button" aria-label="Subscribe for 3 months at 290 rubles" onclick="createPayment(3)">3 месяца - 290₽</button>
+        <button class="button" aria-label="Subscribe for 6 months at 550 rubles" onclick="createPayment(6)">6 месяцев - 550₽</button>
+        <button class="button" aria-label="Subscribe for 12 months at 999 rubles" onclick="createPayment(12)">12 месяцев - 999₽</button>
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.backgroundImage = "url('stars-bg.jpg')";
+        });
+
         // Function to get query parameter value by name
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
+        let isProcessing = false;
+
         function createPayment(duration) {
+            if (isProcessing) return;
+
+            isProcessing = true;
+
             const sessionToken = getQueryParam('sessionToken');
             if (!sessionToken) {
-                alert("Session token is missing");
+                alert("Отсутствует токен сессии");
+                isProcessing = false;
                 return;
             }
 
-            // Define headers in a separate object
             const headers = {
                 "Content-Type": "application/json",
-                "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
-                "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
+                "X-Parse-Application-Id": "15mcFGaOT3V7wyhfOdxVDm6V0VugRxcDfZDSGcIv",
+                "X-Parse-REST-API-Key": "s4NQdpsJ4GSXl1qVLYTdDd9mCAbNajHU2OqOGymX",
                 "X-Parse-Session-Token": sessionToken
             };
+
             const url = "https://horoscope.b4a.io/functions/createPayment";
-            const data = {
-                duration: duration
-            };
+            const data = { duration: duration };
+
             fetch(url, {
                 method: "POST",
                 headers: headers,
@@ -83,17 +114,18 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Check if the response is successful and contains the PaymentURL
                 if (data.result && data.result.Success && data.result.PaymentURL) {
-                    // Redirect to the PaymentURL
                     window.location.href = data.result.PaymentURL;
                 } else {
-                    alert("Payment initiation failed: " + (data.result ? data.result.ErrorCode : "Unknown error"));
+                    alert("Ошибка инициации платежа: " + (data.result ? data.result.ErrorCode : "Неизвестная ошибка"));
                 }
             })
             .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred while initiating the payment.");
+                console.error("Ошибка:", error);
+                alert("Произошла ошибка при инициировании платежа. Попробуйте снова.");
+            })
+            .finally(() => {
+                isProcessing = false;
             });
         }
     </script>

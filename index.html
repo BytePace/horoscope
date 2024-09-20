@@ -1,10 +1,20 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Choose your subscription plan and make secure payments">
     <title>Subscription Page</title>
     <style>
+        body {
+            display: none;
+        }
+
+        body.loaded {
+            display: block;
+        }
+
         .button {
             padding: 10px 20px;
             margin: 10px;
@@ -20,45 +30,66 @@
         }
 
         .container {
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             margin-top: 50px;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Выберите подписку</h1>
-        <button class="button" onclick="createPayment(1)">1 месяц - 99₽</button>
-        <button class="button" onclick="createPayment(3)">3 месяца - 290₽</button>
-        <button class="button" onclick="createPayment(6)">6 месяцев - 550₽</button>
-        <button class="button" onclick="createPayment(12)">12 месяцев - 999₽</button>
-    </div>
+    <section class="subscription-plans">
+        <h2>Выберите подписку</h2>
+        <div class="buttons">
+            <button class="button" aria-label="1 month subscription for 99 rubles" onclick="createPayment(1)">1 месяц - 99₽</button>
+            <button class="button" aria-label="3 months subscription for 290 rubles" onclick="createPayment(3)">3 месяца - 290₽</button>
+            <button class="button" aria-label="6 months subscription for 550 rubles" onclick="createPayment(6)">6 месяцев - 550₽</button>
+            <button class="button" aria-label="12 months subscription for 999 rubles" onclick="createPayment(12)">12 месяцев - 999₽</button>
+        </div>
+    </section>
 
     <script>
+        window.addEventListener('load', function () {
+            document.body.classList.add('loaded');
+        });
+
         // Function to get query parameter value by name
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
+        let isProcessing = false;
+
         function createPayment(duration) {
+            if (isProcessing) return;
+
+            isProcessing = true;
             const sessionToken = getQueryParam('sessionToken');
             if (!sessionToken) {
-                alert("Session token is missing");
+                alert("Отсутствует токен сессии");
+                isProcessing = false;
                 return;
             }
 
-            // Define headers in a separate object
             const headers = {
                 "Content-Type": "application/json",
-                "X-Parse-Application-Id": "LfBduFJ2ET9ehLZybM0Riyk84XabVgRgRwepEJ25",
-                "X-Parse-REST-API-Key": "jqTlhAOWnBPDeSzBKZ0rh0ZFNprE4gYEcBl6rf3W",
+                "X-Parse-Application-Id": "15mcFGaOT3V7wyhfOdxVDm6V0VugRxcDfZDSGcIv",
+                "X-Parse-REST-API-Key": "s4NQdpsJ4GSXl1qVLYTdDd9mCAbNajHU2OqOGymX",
                 "X-Parse-Session-Token": sessionToken
             };
+
             const url = "https://horoscope.b4a.io/functions/createPayment";
-            const data = {
-                duration: duration
-            };
+            const data = { duration: duration };
+
             fetch(url, {
                 method: "POST",
                 headers: headers,
@@ -66,17 +97,18 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Check if the response is successful and contains the PaymentURL
                 if (data.result && data.result.Success && data.result.PaymentURL) {
-                    // Redirect to the PaymentURL
                     window.location.href = data.result.PaymentURL;
                 } else {
-                    alert("Payment initiation failed: " + (data.result ? data.result.ErrorCode : "Unknown error"));
+                    alert("Инициация платежа не удалась: " + (data.result ? data.result.ErrorCode : "Неизвестная ошибка"));
                 }
             })
             .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred while initiating the payment.");
+                console.error("Ошибка:", error);
+                alert("Произошла ошибка при инициировании платежа. Попробуйте снова.");
+            })
+            .finally(() => {
+                isProcessing = false;
             });
         }
     </script>
